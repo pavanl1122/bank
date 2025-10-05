@@ -2,27 +2,47 @@ package com.wecp.progressive.service;
 
 
 import com.wecp.progressive.entity.Customers;
+import com.wecp.progressive.repository.CustomerRepository;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+@Service
 public class CustomerLoginService implements UserDetailsService {
 
+    private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
+    
+    public CustomerLoginService(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
+        this.customerRepository = customerRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public List<Customers> getAllCustomers() {
-        return null;
+        return customerRepository.findAll();
     }
 
     public Optional<Customers> getCustomerById(Integer customer) {
-        return null;
+        return customerRepository.findById(customer);
     }
     public Customers getCustomerByName(String name)
     {
         return null;
+       // return customerRepository.findByUsername()
     }
-    public Customers createCustomer(Customers customer) {
-        return null;
+    //@PreAuthorize("hasRole('ADMIN')")
+    public Customers createCustomer(Customers user) {
+       user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return customerRepository.save(user);
+
     }
 
     public Customers updateCustomer(Customers customer) {
@@ -35,6 +55,11 @@ public class CustomerLoginService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        return null;
+         Customers user = customerRepository.findByUsername(username);
+        if(user==null){
+            throw new UsernameNotFoundException("User not found");
+        }
+        return new org.springframework.security.core.userdetails.User(user.getUsername() , user.getPassword() , new ArrayList<>());
     }
-}
+
+    }

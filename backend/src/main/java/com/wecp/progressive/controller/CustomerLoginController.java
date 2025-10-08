@@ -4,6 +4,7 @@ package com.wecp.progressive.controller;
 import com.wecp.progressive.dto.LoginRequest;
 import com.wecp.progressive.dto.LoginResponse;
 import com.wecp.progressive.entity.Customers;
+import com.wecp.progressive.exception.CustomerAlreadyExistsException;
 import com.wecp.progressive.jwt.JwtUtil;
 import com.wecp.progressive.service.CustomerLoginService;
 
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 @Controller
@@ -21,6 +23,7 @@ public class CustomerLoginController {
     private final CustomerLoginService customerLoginService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    
     
 
     public CustomerLoginController(CustomerLoginService customerLoginService,
@@ -30,10 +33,17 @@ public class CustomerLoginController {
         this.jwtUtil = jwtUtil;
     }
     
+    @PostMapping("/users/register")
     public ResponseEntity<Customers> registerUser(@RequestBody Customers user) {
+        if(customerLoginService.getCustomerByName(user.getUsername())!=null){
+            throw new CustomerAlreadyExistsException("customer already exist");
+        }
+        if()
         return ResponseEntity.ok(customerLoginService.createCustomer(user));
     }
 
+
+    @PostMapping("/users/login")
     public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
         try{
             authenticationManager.authenticate(
@@ -45,6 +55,7 @@ public class CustomerLoginController {
 
         final UserDetails userDetails = customerLoginService.loadUserByUsername(loginRequest.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails);
+        
 
         return ResponseEntity.ok(new LoginResponse(jwt));
 

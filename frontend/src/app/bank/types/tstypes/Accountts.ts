@@ -1,5 +1,20 @@
-export class Accountts {
+export class AccountTS {
   
+    accountId? : string
+    customerId : string
+    balance : number
+
+    constructor(customerId : string, balance : number, accountId? : string){
+        this.customerId = customerId;
+        this.balance = balance;
+        this.accountId = accountId;
+    }
+
+    displayInfo() : void{
+        console.log(`Customer ID: ${this.customerId}`);
+        console.log(`Account ID: ${this.accountId}`);
+        console.log(`Balance: ${this.balance.toFixed(2)}`);
+    }
 
    
 }

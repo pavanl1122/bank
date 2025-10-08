@@ -21,8 +21,8 @@ public interface CustomerRepository extends JpaRepository<Customers, Integer> {
     @Query("select c from Customers c where c.username=:username")
     public Customers findByUsername(@Param("username") String username);
     @Modifying
-@Transactional
-@Query("delete from Customers c where c.customerId = :customerId")
-void deleteByCustomerId(@Param("customerId") int customerId);
+    @Transactional
+    @Query("delete from Customers c where c.customerId = :customerId")
+    void deleteByCustomerId(@Param("customerId") int customerId);
 
 }

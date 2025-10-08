@@ -35,7 +35,7 @@ public class CustomerLoginService implements UserDetailsService {
     }
     public Customers getCustomerByName(String name)
     {
-        return null;
+        return customerRepository.findByUsername(name);
        // return customerRepository.findByUsername()
     }
     //@PreAuthorize("hasRole('ADMIN')")

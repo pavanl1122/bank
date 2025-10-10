@@ -13,7 +13,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtUtil {
-    private String SECRET_KEY = "secretKey00000000000000000000000";
+    private String SECRET_KEY = "secretKey000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
     public String extractUsername(String token){
         return extractClaim(token , Claims::getSubject);

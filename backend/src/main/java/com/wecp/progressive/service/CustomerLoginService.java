@@ -2,6 +2,7 @@ package com.wecp.progressive.service;
 
 
 import com.wecp.progressive.entity.Customers;
+import com.wecp.progressive.exception.CustomerAlreadyExistsException;
 import com.wecp.progressive.repository.CustomerRepository;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,10 +40,23 @@ public class CustomerLoginService implements UserDetailsService {
        // return customerRepository.findByUsername()
     }
     //@PreAuthorize("hasRole('ADMIN')")
-    public Customers createCustomer(Customers user) {
-       user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return customerRepository.save(user);
+    // public Customers createCustomer(Customers user) {
+    //    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    //     return customerRepository.save(user);
 
+    // }
+    public Customers createCustomer(Customers user) {
+        if(customerRepository.findByEmail(user.getEmail()) != null)
+        {
+            throw new CustomerAlreadyExistsException("Email already exists");
+        }
+        if(customerRepository.findByUsername(user.getUsername()) != null)
+        {
+            throw new CustomerAlreadyExistsException("Username already exists");
+            //throw new RuntimeException("Username already exists");
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return customerRepository.save(user);
     }
 
     public Customers updateCustomer(Customers customer) {

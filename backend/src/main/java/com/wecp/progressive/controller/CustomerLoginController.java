@@ -24,7 +24,6 @@ public class CustomerLoginController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     
-    
 
     public CustomerLoginController(CustomerLoginService customerLoginService,
             AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
@@ -35,29 +34,61 @@ public class CustomerLoginController {
     
     @PostMapping("/users/register")
     public ResponseEntity<Customers> registerUser(@RequestBody Customers user) {
-        if(customerLoginService.getCustomerByName(user.getUsername())!=null){
-            throw new CustomerAlreadyExistsException("customer already exist");
-        }
-        if()
+        // if(customerLoginService.getCustomerByName(user.getUsername())!=null){
+        //     throw new CustomerAlreadyExistsException("customer already exist");
+        // }
+        // if()
         return ResponseEntity.ok(customerLoginService.createCustomer(user));
     }
 
 
-    @PostMapping("/users/login")
-    public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
-        try{
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-            );
-        }catch(AuthenticationException e){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Invalid username or password", e);
-        }
+    // @PostMapping("/users/login")
+    // public ResponseEntity loginUser(@RequestBody LoginRequest loginRequest) {
+    //     try{
+    //         authenticationManager.authenticate(
+    //             new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+    //         );
+    //     }catch(AuthenticationException e){
+    //         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED , "Invalid username or password", e);
+    //     }
 
-        final UserDetails userDetails = customerLoginService.loadUserByUsername(loginRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
+    //     final UserDetails userDetails = customerLoginService.loadUserByUsername(loginRequest.getUsername());
+    //     final String jwt = jwtUtil.generateToken(userDetails);
         
 
-        return ResponseEntity.ok(new LoginResponse(jwt));
-
+    //     return ResponseEntity.ok(new LoginResponse(jwt));
+    // }
+    // @PostMapping("user/login")
+    // public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+    //     try {
+    //         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    //     }
+    //     catch (AuthenticationException e) {
+    //         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Username or Password", e);
+    //     }
+    //     final UserDetails userDetails = customerLoginService.loadUserByUsername(loginRequest.getUsername());
+    //     final String token = jwtUtil.generateToken(userDetails);
+    //     Customers customer = customerLoginService.getCustomerByName(userDetails.getUsername());
+    //     return new ResponseEntity<>(new LoginResponse(token, customer.getRole(), customer.getCustomerId()), HttpStatus.OK);
+    // }
+@PostMapping("/users/login")
+public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+    try {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(), 
+                loginRequest.getPassword()
+            )
+        );
+    } catch (AuthenticationException e) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password", e);
     }
+
+    final UserDetails userDetails = customerLoginService.loadUserByUsername(loginRequest.getUsername());
+    final String jwt = jwtUtil.generateToken(userDetails);
+
+    Customers customer = customerLoginService.getCustomerByName(userDetails.getUsername());
+
+    return ResponseEntity.ok(new LoginResponse(jwt, customer.getRole(), customer.getCustomerId()));
+}
 }
